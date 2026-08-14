@@ -20,6 +20,8 @@ use Illuminate\Support\Carbon;
  * @property ClientStatus $status
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read int|null $sites_count
+ * @property-read int|null $users_count
  */
 #[Fillable(['name', 'status'])]
 class Client extends Model

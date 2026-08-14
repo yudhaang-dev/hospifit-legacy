@@ -29,13 +29,48 @@ class ClientPolicy
      */
     public function create(User $user): bool
     {
-        return in_array($user->role, UserRole::backoffice(), true);
+        return $this->isBackofficeRole($user);
     }
 
     /**
      * Determine whether the user can update the model.
      */
     public function update(User $user, Client $client): bool
+    {
+        return $this->isBackofficeRole($user);
+    }
+
+    /**
+     * Determine whether the user can bulk-update clients (no single model
+     * instance to authorize against).
+     */
+    public function updateAny(User $user): bool
+    {
+        return $this->isBackofficeRole($user);
+    }
+
+    /**
+     * Determine whether the user can delete the model.
+     */
+    public function delete(User $user, Client $client): bool
+    {
+        return $this->isBackofficeRole($user);
+    }
+
+    /**
+     * Determine whether the user can bulk-delete clients (no single model
+     * instance to authorize against).
+     */
+    public function deleteAny(User $user): bool
+    {
+        return $this->isBackofficeRole($user);
+    }
+
+    /**
+     * Whether the user is a role allowed to manage Clients (create, update,
+     * delete — single or bulk).
+     */
+    private function isBackofficeRole(User $user): bool
     {
         return in_array($user->role, UserRole::backoffice(), true);
     }

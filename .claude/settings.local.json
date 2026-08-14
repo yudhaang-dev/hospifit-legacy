@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx shadcn@latest add pagination --yes)",
+      "Bash(npx shadcn@latest add sonner --yes)",
+      "Bash(xargs grep -ln \"delete\\(\")"
+    ]
+  }
+}

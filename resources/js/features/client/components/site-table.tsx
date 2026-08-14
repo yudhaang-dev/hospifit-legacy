@@ -1,4 +1,4 @@
-import { MapPinIcon, PlusIcon } from 'lucide-react';
+import { MapPinIcon, PencilIcon, PlusIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     Empty,
@@ -26,7 +26,13 @@ type SiteTableProps = {
 export function SiteTable({ clientId, sites }: SiteTableProps) {
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex justify-end">
+            <div className="flex items-end-safe justify-between">
+                <div>
+                    <h2 className="text-lg font-medium">Site</h2>
+                    <p className="text-sm text-muted-foreground">
+                        Fasilitas yang dimiliki klien ini.
+                    </p>
+                </div>
                 <SiteFormDialog
                     clientId={clientId}
                     trigger={
@@ -74,8 +80,8 @@ export function SiteTable({ clientId, sites }: SiteTableProps) {
                                         clientId={clientId}
                                         site={site}
                                         trigger={
-                                            <Button variant="ghost" size="sm">
-                                                Ubah
+                                            <Button variant="ghost" size="icon">
+                                                <PencilIcon />
                                             </Button>
                                         }
                                     />

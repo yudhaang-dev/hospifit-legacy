@@ -1,4 +1,5 @@
 import { useForm } from '@inertiajs/react';
+import { SaveIcon } from 'lucide-react';
 import type { FormEventHandler, ReactNode } from 'react';
 import { useState } from 'react';
 import {
@@ -123,7 +124,7 @@ export function ClientFormDialog({ client, trigger }: ClientFormDialogProps) {
                     </FieldGroup>
                     <DialogFooter className="mt-6">
                         <Button type="submit" disabled={processing}>
-                            Simpan
+                            <SaveIcon /> Simpan
                         </Button>
                     </DialogFooter>
                 </form>

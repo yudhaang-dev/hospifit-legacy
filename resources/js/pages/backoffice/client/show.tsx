@@ -17,28 +17,24 @@ export default function ClientShow({
     return (
         <>
             <Head title={client.name} />
-            <Link
-                href={index.url()}
-                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:underline"
-            >
-                <ArrowLeftIcon data-icon="inline-start" />
-                Kembali ke Klien
-            </Link>
-            <div className="mt-2 flex items-center gap-3">
-                <h1 className="text-xl font-semibold">{client.name}</h1>
-                <Badge
-                    variant={
-                        client.status === 'active' ? 'default' : 'secondary'
-                    }
+            <div className="flex flex-col gap-4">
+                <Link
+                    href={index.url()}
+                    className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:underline"
                 >
-                    {client.status === 'active' ? 'Aktif' : 'Nonaktif'}
-                </Badge>
-            </div>
-            <h2 className="mt-8 text-lg font-medium">Site</h2>
-            <p className="text-sm text-muted-foreground">
-                Fasilitas yang dimiliki klien ini.
-            </p>
-            <div className="mt-4">
+                    <ArrowLeftIcon data-icon="inline-start" />
+                    Kembali ke Klien
+                </Link>
+                <div className="flex items-center gap-3">
+                    <h1 className="text-xl font-semibold">{client.name}</h1>
+                    <Badge
+                        variant={
+                            client.status === 'active' ? 'default' : 'secondary'
+                        }
+                    >
+                        {client.status === 'active' ? 'Aktif' : 'Nonaktif'}
+                    </Badge>
+                </div>
                 <SiteTable clientId={client.id} sites={sites} />
             </div>
         </>
