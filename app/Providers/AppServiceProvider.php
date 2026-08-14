@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Domain\Client\Policies\ClientPolicy;
+use App\Domain\Client\Policies\LocationPolicy;
 use App\Domain\Client\Policies\SitePolicy;
 use App\Models\Client;
+use App\Models\Location;
 use App\Models\Site;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
@@ -61,5 +63,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Client::class, ClientPolicy::class);
         Gate::policy(Site::class, SitePolicy::class);
+        Gate::policy(Location::class, LocationPolicy::class);
     }
 }

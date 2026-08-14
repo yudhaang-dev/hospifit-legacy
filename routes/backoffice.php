@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Backoffice\ClientController;
 use App\Http\Controllers\Backoffice\DashboardController;
+use App\Http\Controllers\Backoffice\LocationController;
 use App\Http\Controllers\Backoffice\SiteController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,5 +25,12 @@ Route::middleware(['auth', 'role:admin,office_staff'])
         Route::delete('clients/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
 
         Route::post('clients/{client}/sites', [SiteController::class, 'store'])->name('clients.sites.store');
+        Route::delete('sites/bulk-delete', [SiteController::class, 'bulkDestroy'])->name('sites.bulk-destroy');
+        Route::get('sites/{site}', [SiteController::class, 'show'])->name('sites.show');
         Route::put('sites/{site}', [SiteController::class, 'update'])->name('sites.update');
+        Route::delete('sites/{site}', [SiteController::class, 'destroy'])->name('sites.destroy');
+
+        Route::post('sites/{site}/locations', [LocationController::class, 'store'])->name('sites.locations.store');
+        Route::put('locations/{location}', [LocationController::class, 'update'])->name('locations.update');
+        Route::delete('locations/{location}', [LocationController::class, 'destroy'])->name('locations.destroy');
     });

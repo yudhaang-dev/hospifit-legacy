@@ -3,7 +3,9 @@
     "allow": [
       "Bash(npx shadcn@latest add pagination --yes)",
       "Bash(npx shadcn@latest add sonner --yes)",
-      "Bash(xargs grep -ln \"delete\\(\")"
+      "Bash(xargs grep -ln \"delete\\(\")",
+      "Bash(npx shadcn@latest docs combobox)",
+      "Bash(npx shadcn@latest add combobox --dry-run)"
     ]
   }
 }

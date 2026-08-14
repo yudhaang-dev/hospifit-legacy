@@ -7,6 +7,7 @@ use Database\Factories\SiteFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -23,12 +24,21 @@ use Illuminate\Support\Carbon;
  * @property int $geofence_radius_m
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read int|null $locations_count
  */
 #[Fillable(['client_id', 'name', 'address', 'latitude', 'longitude', 'geofence_radius_m'])]
 class Site extends Model
 {
     /** @use HasFactory<SiteFactory> */
     use BelongsToClient, HasFactory;
+
+    /**
+     * @return HasMany<Location, $this>
+     */
+    public function locations(): HasMany
+    {
+        return $this->hasMany(Location::class);
+    }
 
     /**
      * Get the attributes that should be cast.

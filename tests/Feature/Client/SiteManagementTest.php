@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Client;
+use App\Models\Location;
 use App\Models\Site;
 use App\Models\User;
 
@@ -15,8 +16,22 @@ test('admin can view a client with its sites', function () {
     $response->assertInertia(fn ($page) => $page
         ->component('backoffice/client/show')
         ->where('client.id', $client->id)
-        ->has('sites', 1)
-        ->where('sites.0.id', $site->id)
+        ->has('sites.data', 1)
+        ->where('sites.data.0.id', $site->id)
+    );
+});
+
+test('site list within a client is paginated', function () {
+    $admin = User::factory()->admin()->create();
+    $client = Client::factory()->create();
+    Site::factory()->count(16)->for($client)->create();
+
+    $response = $this->actingAs($admin)->get(route('backoffice.clients.show', $client));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->where('sites.total', 16)
+        ->has('sites.data', 15)
     );
 });
 
@@ -87,4 +102,123 @@ test('field staff cannot manage sites', function () {
     $this->actingAs($fieldStaff)
         ->post(route('backoffice.clients.sites.store', $client), [])
         ->assertForbidden();
+});
+
+test('site list within a client can be searched by name', function () {
+    $admin = User::factory()->admin()->create();
+    $client = Client::factory()->create();
+    Site::factory()->for($client)->create(['name' => 'Gedung Utama']);
+    Site::factory()->for($client)->create(['name' => 'Gedung Timur']);
+
+    $response = $this->actingAs($admin)->get(route('backoffice.clients.show', [
+        'client' => $client,
+        'search' => 'Utama',
+    ]));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->has('sites.data', 1)
+        ->where('sites.data.0.name', 'Gedung Utama')
+    );
+});
+
+test('site list within a client can be sorted by geofence radius descending', function () {
+    $admin = User::factory()->admin()->create();
+    $client = Client::factory()->create();
+    Site::factory()->for($client)->create(['geofence_radius_m' => 50]);
+    Site::factory()->for($client)->create(['geofence_radius_m' => 200]);
+
+    $response = $this->actingAs($admin)->get(route('backoffice.clients.show', [
+        'client' => $client,
+        'sort' => 'geofence_radius_m',
+        'direction' => 'desc',
+    ]));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->where('sites.data.0.geofence_radius_m', 200)
+        ->where('sites.data.1.geofence_radius_m', 50)
+    );
+});
+
+test('site list within a client page length can be changed', function () {
+    $admin = User::factory()->admin()->create();
+    $client = Client::factory()->create();
+    Site::factory()->count(12)->for($client)->create();
+
+    $response = $this->actingAs($admin)->get(route('backoffice.clients.show', [
+        'client' => $client,
+        'per_page' => 10,
+    ]));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->where('sites.per_page', 10)
+        ->has('sites.data', 10)
+    );
+});
+
+test('admin can delete a site', function () {
+    $admin = User::factory()->admin()->create();
+    $site = Site::factory()->create();
+
+    $response = $this->actingAs($admin)->delete(route('backoffice.sites.destroy', $site));
+
+    $response->assertRedirect();
+    expect(Site::find($site->id))->toBeNull();
+});
+
+test('admin can bulk delete sites', function () {
+    $admin = User::factory()->admin()->create();
+    $client = Client::factory()->create();
+    $sites = Site::factory()->count(3)->for($client)->create();
+
+    $response = $this->actingAs($admin)->delete(route('backoffice.sites.bulk-destroy'), [
+        'ids' => $sites->pluck('id')->all(),
+    ]);
+
+    $response->assertRedirect();
+    expect(Site::whereIn('id', $sites->pluck('id'))->count())->toBe(0);
+});
+
+test('field staff cannot delete sites', function () {
+    $fieldStaff = User::factory()->fieldStaff()->create();
+    $site = Site::factory()->create();
+
+    $this->actingAs($fieldStaff)
+        ->delete(route('backoffice.sites.destroy', $site))
+        ->assertForbidden();
+
+    expect(Site::find($site->id))->not->toBeNull();
+});
+
+test('deleting a site with a location is blocked', function () {
+    $admin = User::factory()->admin()->create();
+    $site = Site::factory()->create();
+    Location::factory()->for($site)->create();
+
+    $response = $this->actingAs($admin)->delete(route('backoffice.sites.destroy', $site));
+
+    $response->assertRedirect();
+    expect(Site::find($site->id))->not->toBeNull();
+});
+
+test('admin can view a site with its location tree', function () {
+    $admin = User::factory()->admin()->create();
+    $site = Site::factory()->create();
+    $building = Location::factory()->for($site)->create(['type' => 'building', 'name' => 'Gedung A']);
+    $room = Location::factory()->childOf($building)->create(['type' => 'room', 'name' => 'Ruang 101']);
+
+    $response = $this->actingAs($admin)->get(route('backoffice.sites.show', $site));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->component('backoffice/site/show')
+        ->where('site.id', $site->id)
+        ->has('locations', 2)
+        ->where('locations.0.id', $building->id)
+        ->where('locations.0.depth', 0)
+        ->where('locations.1.id', $room->id)
+        ->where('locations.1.depth', 1)
+    );
 });

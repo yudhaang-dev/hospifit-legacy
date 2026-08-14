@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Backoffice;
 use App\Domain\Client\Actions\BulkUpdateClientStatus;
 use App\Domain\Client\Actions\DeleteClients;
 use App\Domain\Client\ClientStatus;
+use App\Http\Controllers\Backoffice\Concerns\HasDeleteFlash;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\BulkDeleteClientsRequest;
 use App\Http\Requests\Client\BulkUpdateClientStatusRequest;
 use App\Http\Requests\Client\IndexClientRequest;
+use App\Http\Requests\Client\ShowClientRequest;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Models\Client;
@@ -19,6 +21,8 @@ use Inertia\Response;
 
 class ClientController extends Controller
 {
+    use HasDeleteFlash;
+
     /**
      * List Clients — searchable, sortable, paginated.
      */
@@ -51,13 +55,35 @@ class ClientController extends Controller
     }
 
     /**
-     * Show a Client's detail, including its Sites.
+     * Show a Client's detail, including its Sites — searchable, sortable,
+     * paginated the same way the Client index is.
      */
-    public function show(Client $client): Response
+    public function show(ShowClientRequest $request, Client $client): Response
     {
+        /** @var string|null $search */
+        $search = $request->validated('search');
+        /** @var string $sort */
+        $sort = $request->validated('sort') ?? 'name';
+        /** @var 'asc'|'desc' $direction */
+        $direction = $request->validated('direction') ?? 'asc';
+        /** @var int $perPage */
+        $perPage = $request->validated('per_page') ?? 15;
+
+        $sites = $client->sites()
+            ->when($search, fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
+            ->orderBy($sort, $direction)
+            ->paginate($perPage)
+            ->withQueryString();
+
         return Inertia::render('backoffice/client/show', [
             'client' => $client,
-            'sites' => $client->sites()->orderBy('name')->get(),
+            'sites' => $sites,
+            'filters' => [
+                'search' => $search,
+                'sort' => $sort,
+                'direction' => $direction,
+                'per_page' => (int) $perPage,
+            ],
         ]);
     }
 
@@ -90,7 +116,7 @@ class ClientController extends Controller
 
         $result = (new DeleteClients)->handle([$client->id]);
 
-        return back()->with(...$this->deleteFlash($result));
+        return back()->with(...$this->deleteFlash($result, 'klien', 'Site/Pengguna'));
     }
 
     /**
@@ -118,29 +144,6 @@ class ClientController extends Controller
 
         $result = (new DeleteClients)->handle($ids);
 
-        return back()->with(...$this->deleteFlash($result));
-    }
-
-    /**
-     * Build the flash message key/value for a DeleteClients result.
-     *
-     * @param  array{deleted: int, blocked: int}  $result
-     * @return array{0: string, 1: string}
-     */
-    private function deleteFlash(array $result): array
-    {
-        $messages = [];
-
-        if ($result['deleted'] > 0) {
-            $messages[] = "{$result['deleted']} klien dihapus.";
-        }
-
-        if ($result['blocked'] > 0) {
-            $messages[] = "{$result['blocked']} klien dilewati karena masih memiliki Site/Pengguna.";
-        }
-
-        $key = $result['deleted'] > 0 && $result['blocked'] === 0 ? 'success' : 'error';
-
-        return [$key, implode(' ', $messages) ?: 'Tidak ada klien yang dihapus.'];
+        return back()->with(...$this->deleteFlash($result, 'klien', 'Site/Pengguna'));
     }
 }

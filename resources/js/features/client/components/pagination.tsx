@@ -8,16 +8,17 @@ import {
 import type { PaginationLink as PaginationLinkData } from '@/features/client/lib/types';
 import { cn } from '@/lib/utils';
 
-type ClientPaginationProps = {
+type DataPaginationProps = {
     links: PaginationLinkData[];
 };
 
 /**
  * Renders Laravel's ready-made paginator `links` array (prev/next + numbered
  * pages + "..." gaps already resolved server-side) as Inertia navigation
- * styled with the shadcn Pagination look.
+ * styled with the shadcn Pagination look. Generic over any paginated list in
+ * the Client context — used by both ClientTable and SiteTable.
  */
-export function ClientPagination({ links }: ClientPaginationProps) {
+export function DataPagination({ links }: DataPaginationProps) {
     // Just prev + current + next means there's only a single page.
     if (links.length <= 3) {
         return null;

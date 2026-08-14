@@ -21,9 +21,9 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { ClientFormDialog } from '@/features/client/components/client-form-dialog';
-import { ClientPagination } from '@/features/client/components/client-pagination';
 import { ClientTableToolbar } from '@/features/client/components/client-table-toolbar';
 import { DeleteClientsDialog } from '@/features/client/components/delete-clients-dialog';
+import { DataPagination } from '@/features/client/components/pagination';
 import type {
     Client,
     ClientIndexFilters,
@@ -84,143 +84,159 @@ export function ClientTable({ clients, filters }: ClientTableProps) {
     };
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex items-end-safe justify-between">
-                <div className="">
-                    <h1 className="text-xl font-semibold">Klien</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Kelola organisasi klien dan fasilitasnya.
-                    </p>
+        <div className="flex w-full flex-col gap-4 py-4">
+            <div className="flex flex-col gap-4 px-4">
+                <div className="flex items-end-safe justify-between">
+                    <div className="">
+                        <h1 className="text-xl font-semibold">Klien</h1>
+                        <p className="text-sm text-muted-foreground">
+                            Kelola organisasi klien dan fasilitasnya.
+                        </p>
+                    </div>
+                    <ClientFormDialog
+                        trigger={
+                            <Button>
+                                <PlusIcon data-icon="inline-start" />
+                                Tambah Klien
+                            </Button>
+                        }
+                    />
                 </div>
-                <ClientFormDialog
-                    trigger={
-                        <Button>
-                            <PlusIcon data-icon="inline-start" />
-                            Tambah Klien
-                        </Button>
-                    }
-                />
+                <ClientTableToolbar filters={filters} />
             </div>
-            <ClientTableToolbar filters={filters} />
 
             {selected.size > 0 && (
-                <div className="flex items-center gap-2 rounded-md border bg-muted/50 px-4 py-2">
-                    <span className="text-sm">{selected.size} dipilih</span>
-                    <div className="ml-auto flex items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => bulkSetStatus('active')}
-                        >
-                            Aktifkan
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => bulkSetStatus('inactive')}
-                        >
-                            Nonaktifkan
-                        </Button>
-                        <DeleteClientsDialog
-                            clientIds={Array.from(selected)}
-                            trigger={
-                                <Button variant="destructive" size="sm">
-                                    Hapus
-                                </Button>
-                            }
-                        />
+                <div className="px-4">
+                    <div className="flex items-center gap-2 rounded-md border bg-muted/50 px-4 py-2">
+                        <span className="text-sm">{selected.size} dipilih</span>
+                        <div className="ml-auto flex items-center gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => bulkSetStatus('active')}
+                            >
+                                Aktifkan
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => bulkSetStatus('inactive')}
+                            >
+                                Nonaktifkan
+                            </Button>
+                            <DeleteClientsDialog
+                                clientIds={Array.from(selected)}
+                                trigger={
+                                    <Button variant="destructive" size="sm">
+                                        Hapus
+                                    </Button>
+                                }
+                            />
+                        </div>
                     </div>
                 </div>
             )}
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-0">
-                            <Checkbox
-                                checked={allSelected}
-                                onCheckedChange={(checked) =>
-                                    toggleAll(checked === true)
-                                }
-                                aria-label="Pilih semua"
-                            />
-                        </TableHead>
-                        <TableHead>
-                            <SortButton
-                                column="name"
-                                label="Nama"
-                                filters={filters}
-                                onSort={sortBy}
-                            />
-                        </TableHead>
-                        <TableHead>
-                            <SortButton
-                                column="status"
-                                label="Status"
-                                filters={filters}
-                                onSort={sortBy}
-                            />
-                        </TableHead>
-                        <TableHead className="w-0" />
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {clients.data.map((client) => (
-                        <TableRow key={client.id}>
-                            <TableCell>
+            <div className="w-full overflow-x-auto">
+                <Table className="border-y">
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-7">
                                 <Checkbox
-                                    checked={selected.has(client.id)}
+                                    checked={allSelected}
                                     onCheckedChange={(checked) =>
-                                        toggleOne(client.id, checked === true)
+                                        toggleAll(checked === true)
                                     }
-                                    aria-label={`Pilih ${client.name}`}
+                                    aria-label="Pilih semua"
                                 />
-                            </TableCell>
-                            <TableCell>
-                                <Link
-                                    href={show.url(client.id)}
-                                    className="font-medium hover:underline"
-                                >
-                                    {client.name}
-                                </Link>
-                            </TableCell>
-                            <TableCell>
-                                <Badge
-                                    variant={
-                                        client.status === 'active'
-                                            ? 'default'
-                                            : 'secondary'
-                                    }
-                                >
-                                    {client.status === 'active'
-                                        ? 'Aktif'
-                                        : 'Nonaktif'}
-                                </Badge>
-                            </TableCell>
-                            <TableCell>
-                                <div className="flex justify-end gap-2">
-                                    <ClientFormDialog
-                                        client={client}
-                                        trigger={
-                                            <Button variant="ghost" size="icon">
-                                                <PencilIcon />
-                                            </Button>
-                                        }
-                                    />
-                                    <DeleteClientsDialog
-                                        clientIds={[client.id]}
-                                        trigger={
-                                            <Button variant="ghost" size="icon">
-                                                <Trash2Icon />
-                                            </Button>
-                                        }
-                                    />
-                                </div>
-                            </TableCell>
+                            </TableHead>
+                            <TableHead>
+                                <SortButton
+                                    column="name"
+                                    label="Nama"
+                                    filters={filters}
+                                    onSort={sortBy}
+                                />
+                            </TableHead>
+                            <TableHead>
+                                <SortButton
+                                    column="status"
+                                    label="Status"
+                                    filters={filters}
+                                    onSort={sortBy}
+                                />
+                            </TableHead>
+                            <TableHead className="w-0" />
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-            <ClientPagination links={clients.links} />
+                    </TableHeader>
+                    <TableBody>
+                        {clients.data.map((client) => (
+                            <TableRow key={client.id}>
+                                <TableCell>
+                                    <Checkbox
+                                        checked={selected.has(client.id)}
+                                        onCheckedChange={(checked) =>
+                                            toggleOne(
+                                                client.id,
+                                                checked === true,
+                                            )
+                                        }
+                                        aria-label={`Pilih ${client.name}`}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <Link
+                                        href={show.url(client.id)}
+                                        className="font-medium hover:underline"
+                                    >
+                                        {client.name}
+                                    </Link>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge
+                                        variant={
+                                            client.status === 'active'
+                                                ? 'default'
+                                                : 'secondary'
+                                        }
+                                    >
+                                        {client.status === 'active'
+                                            ? 'Aktif'
+                                            : 'Nonaktif'}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex justify-end gap-2">
+                                        <ClientFormDialog
+                                            client={client}
+                                            trigger={
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                >
+                                                    <PencilIcon />
+                                                </Button>
+                                            }
+                                        />
+                                        <DeleteClientsDialog
+                                            clientIds={[client.id]}
+                                            trigger={
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                >
+                                                    <Trash2Icon />
+                                                </Button>
+                                            }
+                                        />
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+
+            <DataPagination links={clients.links} />
         </div>
     );
 }
