@@ -1,9 +1,4 @@
 import { Link, useForm } from '@inertiajs/react';
-import {
-    InvalidDomainError,
-    NotSupportedError,
-    UserCancelledError,
-} from '@laravel/passkeys';
 import { usePasskeyVerify } from '@laravel/passkeys/react';
 import { KeyRoundIcon } from 'lucide-react';
 import type { FormEventHandler } from 'react';
@@ -27,22 +22,7 @@ import {
     FieldSeparator,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-
-function passkeyErrorMessage(error: unknown): string {
-    if (error instanceof NotSupportedError) {
-        return 'Perangkat atau browser Anda tidak mendukung Passkey.';
-    }
-
-    if (error instanceof UserCancelledError) {
-        return 'Proses masuk dengan Passkey dibatalkan.';
-    }
-
-    if (error instanceof InvalidDomainError) {
-        return 'Passkey tidak valid untuk domain ini.';
-    }
-
-    return 'Tidak ditemukan Passkey untuk akun ini. Silakan masuk dengan kata sandi.';
-}
+import { passkeyErrorMessage } from '@/features/identity/lib/passkey-error-message';
 
 export function LoginForm() {
     const { data, setData, post, processing, errors } = useForm({
@@ -63,7 +43,12 @@ export function LoginForm() {
             }
         },
         onError: (error) => {
-            toast.error(passkeyErrorMessage(error));
+            toast.error(
+                passkeyErrorMessage(
+                    error,
+                    'Tidak ditemukan Passkey untuk akun ini. Silakan masuk dengan kata sandi.',
+                ),
+            );
         },
     });
 

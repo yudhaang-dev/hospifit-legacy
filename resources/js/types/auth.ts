@@ -3,6 +3,12 @@ export type User = {
     name: string;
     email: string;
     avatar?: string;
+    role:
+        | 'admin'
+        | 'office_staff'
+        | 'field_staff'
+        | 'client_admin'
+        | 'client_staff';
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;

@@ -14,7 +14,7 @@ class AttemptLogin
     /**
      * Attempt to log the user in, throttling repeated failures.
      */
-    public function handle(string $email, string $password, Request $request): User
+    public function handle(string $email, string $password, Request $request, bool $remember = false): User
     {
         $throttleKey = Str::lower($email).'|'.$request->ip();
 
@@ -28,7 +28,7 @@ class AttemptLogin
             ]);
         }
 
-        if (! Auth::attempt(['email' => $email, 'password' => $password])) {
+        if (! Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
             RateLimiter::hit($throttleKey);
 
             throw ValidationException::withMessages([

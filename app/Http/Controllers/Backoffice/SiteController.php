@@ -35,6 +35,8 @@ class SiteController extends Controller
      */
     public function show(Site $site): Response
     {
+        $site->load(['client:id,name']);
+
         $locations = $site->locations()->orderBy('name')->get();
 
         return Inertia::render('backoffice/site/show', [

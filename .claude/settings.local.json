@@ -5,7 +5,31 @@
       "Bash(npx shadcn@latest add sonner --yes)",
       "Bash(xargs grep -ln \"delete\\(\")",
       "Bash(npx shadcn@latest docs combobox)",
-      "Bash(npx shadcn@latest add combobox --dry-run)"
+      "Bash(npx shadcn@latest add combobox --dry-run)",
+      "Bash(yes n *)",
+      "Bash(npm run *)",
+      "Skill(shadcn)",
+      "Skill(shadcn:*)",
+      "Bash(composer types:check)",
+      "Bash(php artisan *)",
+      "Bash(composer require *)",
+      "Bash(composer install *)",
+      "Bash(rm -rf vendor/composer/*/Spomky-Labs-pki-framework*)",
+      "Bash(curl -sI --max-time 5 https://registry.npmjs.org/@laravel/passkeys)",
+      "Bash(npm install *)",
+      "Bash(npm audit *)",
+      "Bash(npm ls *)",
+      "Bash(xargs -I{} sh -c 'echo ==={}===; cat {}')",
+      "Bash(composer update *)",
+      "Bash(vendor/bin/phpstan analyse *)",
+      "Bash(git add *)",
+      "Bash(git diff *)",
+      "Read(//c/Users/HP/AppData/Local/Temp/claude/e--Laragon-www-hospifit/23bb281b-dbef-4908-8aba-572c107febb5/scratchpad/**)",
+      "Bash(git reset *)",
+      "Bash(grep -v \"^\\\\s*$\")",
+      "Bash(xargs grep -l \"trait MustVerifyEmail\")",
+      "Bash(npx shadcn@latest add card --diff)",
+      "Bash(npx shadcn@latest add card --overwrite --yes)"
     ]
   }
 }

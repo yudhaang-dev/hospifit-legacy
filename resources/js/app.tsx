@@ -43,7 +43,7 @@ createInertiaApp({
         createRoot(el).render(
             <>
                 <App {...props} />
-                <Toaster />
+                <Toaster richColors />
             </>,
         );
     },

@@ -27,7 +27,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request, AttemptLogin $attemptLogin, ResolveAreaForUser $resolveArea): RedirectResponse
     {
-        $user = $attemptLogin->handle($request->string('email')->toString(), $request->string('password')->toString(), $request);
+        $user = $attemptLogin->handle($request->string('email')->toString(), $request->string('password')->toString(), $request, $request->boolean('remember'));
 
         return redirect()->to($resolveArea->handle($user));
     }

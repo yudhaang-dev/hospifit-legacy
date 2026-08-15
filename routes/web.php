@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\Identity\AuthenticatedSessionController;
+use App\Http\Controllers\Identity\ConfirmablePasswordController;
 use App\Http\Controllers\Identity\EmailVerificationNotificationController;
 use App\Http\Controllers\Identity\EmailVerificationPromptController;
 use App\Http\Controllers\Identity\NewPasswordController;
+use App\Http\Controllers\Identity\PasswordController;
 use App\Http\Controllers\Identity\PasswordResetLinkController;
+use App\Http\Controllers\Identity\SecuritySettingsController;
 use App\Http\Controllers\Identity\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,7 +33,20 @@ Route::middleware('auth')->group(function () {
     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
         ->middleware('throttle:6,1')
         ->name('verification.send');
+
+    Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])->name('password.confirm');
+    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 });
+
+Route::middleware(['auth', 'verified'])
+    ->prefix('settings')
+    ->name('settings.')
+    ->group(function () {
+        Route::middleware('password.confirm')->group(function () {
+            Route::get('security', [SecuritySettingsController::class, 'index'])->name('security');
+            Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+        });
+    });
 
 require __DIR__.'/backoffice.php';
 require __DIR__.'/field.php';

@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import { ClientTable } from '@/features/client/components/client-table';
 import type {
     Client,
@@ -24,5 +24,7 @@ export default function ClientIndex({
 }
 
 ClientIndex.layout = (page: ReactElement) => (
-    <BackofficeLayout children={page as ReactNode} />
+    <BackofficeLayout breadcrumbs={[{ label: 'Klien' }]}>
+        {page}
+    </BackofficeLayout>
 );

@@ -29,7 +29,7 @@ type LocationTableProps = {
 export function LocationTable({ siteId, locations }: LocationTableProps) {
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex items-end-safe justify-between">
+            <div className="flex items-end-safe justify-between px-4">
                 <div>
                     <h2 className="text-lg font-medium">Lokasi</h2>
                     <p className="text-sm text-muted-foreground">
@@ -63,101 +63,105 @@ export function LocationTable({ siteId, locations }: LocationTableProps) {
                     </EmptyHeader>
                 </Empty>
             ) : (
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Nama</TableHead>
-                            <TableHead>Tipe</TableHead>
-                            <TableHead>Interval Perawatan</TableHead>
-                            <TableHead>Geofence</TableHead>
-                            <TableHead className="w-0" />
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {locations.map((location) => {
-                            const interval = resolveMaintenanceIntervalDays(
-                                locations,
-                                location,
-                            );
-                            const isInherited =
-                                location.maintenance_interval_days === null &&
-                                interval !== null;
+                <div className="w-full overflow-x-auto">
+                    <Table className="border-y">
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Nama</TableHead>
+                                <TableHead>Tipe</TableHead>
+                                <TableHead>Interval Perawatan</TableHead>
+                                <TableHead>Geofence</TableHead>
+                                <TableHead className="w-0" />
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {locations.map((location) => {
+                                const interval = resolveMaintenanceIntervalDays(
+                                    locations,
+                                    location,
+                                );
+                                const isInherited =
+                                    location.maintenance_interval_days ===
+                                        null && interval !== null;
 
-                            return (
-                                <TableRow key={location.id}>
-                                    <TableCell
-                                        className="font-medium"
-                                        style={{
-                                            paddingLeft: `${location.depth * 1.5 + 1}rem`,
-                                        }}
-                                    >
-                                        {location.name}
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge variant="secondary">
-                                            {location.type}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        {interval === null ? (
-                                            '—'
-                                        ) : (
-                                            <span>
-                                                {interval} hari
-                                                {isInherited && (
-                                                    <span className="text-muted-foreground">
-                                                        {' '}
-                                                        (warisan)
-                                                    </span>
-                                                )}
-                                            </span>
-                                        )}
-                                    </TableCell>
-                                    <TableCell>
-                                        {location.latitude !== null &&
-                                        location.longitude !== null &&
-                                        location.geofence_radius_m !== null ? (
-                                            <Badge variant="outline">
-                                                Override{' '}
-                                                {location.geofence_radius_m} m
+                                return (
+                                    <TableRow key={location.id}>
+                                        <TableCell
+                                            className="font-medium"
+                                            style={{
+                                                paddingLeft: `${location.depth * 1.5 + 1}rem`,
+                                            }}
+                                        >
+                                            {location.name}
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge variant="secondary">
+                                                {location.type}
                                             </Badge>
-                                        ) : (
-                                            '—'
-                                        )}
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex justify-end gap-2">
-                                            <LocationFormDialog
-                                                siteId={siteId}
-                                                locations={locations}
-                                                location={location}
-                                                trigger={
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                    >
-                                                        <PencilIcon />
-                                                    </Button>
-                                                }
-                                            />
-                                            <DeleteLocationDialog
-                                                locationId={location.id}
-                                                trigger={
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                    >
-                                                        <Trash2Icon />
-                                                    </Button>
-                                                }
-                                            />
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            );
-                        })}
-                    </TableBody>
-                </Table>
+                                        </TableCell>
+                                        <TableCell>
+                                            {interval === null ? (
+                                                '—'
+                                            ) : (
+                                                <span>
+                                                    {interval} hari
+                                                    {isInherited && (
+                                                        <span className="text-muted-foreground">
+                                                            {' '}
+                                                            (warisan)
+                                                        </span>
+                                                    )}
+                                                </span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {location.latitude !== null &&
+                                            location.longitude !== null &&
+                                            location.geofence_radius_m !==
+                                                null ? (
+                                                <Badge variant="outline">
+                                                    Override{' '}
+                                                    {location.geofence_radius_m}{' '}
+                                                    m
+                                                </Badge>
+                                            ) : (
+                                                '—'
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex justify-end gap-2">
+                                                <LocationFormDialog
+                                                    siteId={siteId}
+                                                    locations={locations}
+                                                    location={location}
+                                                    trigger={
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                        >
+                                                            <PencilIcon />
+                                                        </Button>
+                                                    }
+                                                />
+                                                <DeleteLocationDialog
+                                                    locationId={location.id}
+                                                    trigger={
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                        >
+                                                            <Trash2Icon />
+                                                        </Button>
+                                                    }
+                                                />
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })}
+                        </TableBody>
+                    </Table>
+                </div>
             )}
         </div>
     );
