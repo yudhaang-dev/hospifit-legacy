@@ -70,7 +70,10 @@ across many Assets.
 
 ### `Asset`
 One physical, client-owned item under a Location, identified by a Hospifit-generated
-barcode.
+barcode. `barcode` uniqueness is enforced **globally** (one `assets.barcode` unique
+constraint, not scoped per Site/Client) — this is an explicit decision, not an implicit
+assumption, made so that field-visit barcode scanning (ticket 09) can resolve an Asset from
+the scanned code alone, without first knowing which Site the visit is at.
 - `location_id`, `asset_type_id` (nullable), `name`, `barcode` (unique, system-generated),
   `serial_number` (nullable, client/manufacturer-provided if known),
   `maintenance_interval` (nullable override of the Location's/AssetType's default),

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Asset;
 use App\Models\Location;
 use App\Models\Site;
 use App\Models\User;
@@ -130,6 +131,17 @@ test('deleting a location with children is blocked', function () {
     expect(Location::find($parent->id))->not->toBeNull();
 });
 
+test('deleting a location with assets is blocked', function () {
+    $admin = User::factory()->admin()->create();
+    $location = Location::factory()->create();
+    Asset::factory()->forLocation($location)->create();
+
+    $response = $this->actingAs($admin)->delete(route('backoffice.locations.destroy', $location));
+
+    $response->assertRedirect();
+    expect(Location::find($location->id))->not->toBeNull();
+});
+
 test('a location resolves its maintenance interval from the nearest ancestor', function () {
     $site = Site::factory()->create();
     $building = Location::factory()->for($site)->create(['maintenance_interval_days' => 90]);
@@ -166,4 +178,20 @@ test('field staff cannot manage locations', function () {
     $this->actingAs($fieldStaff)
         ->post(route('backoffice.sites.locations.store', $site), [])
         ->assertForbidden();
+});
+
+test('location typeahead search is scoped to the given site and returns depth-annotated results', function () {
+    $admin = User::factory()->admin()->create();
+    $site = Site::factory()->create();
+    $building = Location::factory()->for($site)->create(['name' => 'Gedung A']);
+    $room = Location::factory()->childOf($building)->create(['name' => 'Ruang 101']);
+    $otherSiteLocation = Location::factory()->create(['name' => 'Gedung A']);
+
+    $response = $this->actingAs($admin)->getJson(route('backoffice.locations.search', ['site_id' => $site->id]));
+
+    $response->assertOk();
+    $response->assertJsonCount(2);
+    $response->assertJsonFragment(['id' => $building->id, 'name' => 'Gedung A', 'depth' => 0]);
+    $response->assertJsonFragment(['id' => $room->id, 'name' => 'Ruang 101', 'depth' => 1]);
+    $response->assertJsonMissing(['id' => $otherSiteLocation->id]);
 });

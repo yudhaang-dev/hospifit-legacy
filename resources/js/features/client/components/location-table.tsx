@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import { MapIcon, PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ import { DeleteLocationDialog } from '@/features/client/components/delete-locati
 import { LocationFormDialog } from '@/features/client/components/location-form-dialog';
 import { resolveMaintenanceIntervalDays } from '@/features/client/lib/location-tree';
 import type { LocationNode } from '@/features/client/lib/types';
+import { show } from '@/routes/backoffice/locations';
 
 type LocationTableProps = {
     siteId: number;
@@ -92,7 +94,12 @@ export function LocationTable({ siteId, locations }: LocationTableProps) {
                                                 paddingLeft: `${location.depth * 1.5 + 1}rem`,
                                             }}
                                         >
-                                            {location.name}
+                                            <Link
+                                                href={show.url(location.id)}
+                                                className="hover:underline"
+                                            >
+                                                {location.name}
+                                            </Link>
                                         </TableCell>
                                         <TableCell>
                                             <Badge variant="secondary">

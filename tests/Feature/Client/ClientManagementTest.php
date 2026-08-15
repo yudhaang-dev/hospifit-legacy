@@ -187,3 +187,37 @@ test('admin can bulk delete clients with a mix of deletable and blocked clients'
     expect(Client::find($deletable->id))->toBeNull();
     expect(Client::find($blocked->id))->not->toBeNull();
 });
+
+test('client typeahead search returns matches by name', function () {
+    $admin = User::factory()->admin()->create();
+    Client::factory()->create(['name' => 'RS Sehat Sentosa']);
+    Client::factory()->create(['name' => 'Klinik Bahagia']);
+
+    $response = $this->actingAs($admin)->getJson(route('backoffice.clients.search', ['q' => 'Sehat']));
+
+    $response->assertOk();
+    $response->assertJsonCount(1);
+    $response->assertJsonFragment(['name' => 'RS Sehat Sentosa']);
+});
+
+test('client typeahead search respects the result cap', function () {
+    $admin = User::factory()->admin()->create();
+    Client::factory()->count(25)->create();
+
+    $response = $this->actingAs($admin)->getJson(route('backoffice.clients.search'));
+
+    $response->assertOk();
+    $response->assertJsonCount(20);
+});
+
+test('client typeahead search can resolve a single known id', function () {
+    $admin = User::factory()->admin()->create();
+    $client = Client::factory()->create();
+    Client::factory()->count(25)->create();
+
+    $response = $this->actingAs($admin)->getJson(route('backoffice.clients.search', ['id' => $client->id]));
+
+    $response->assertOk();
+    $response->assertJsonCount(1);
+    $response->assertJsonFragment(['id' => $client->id]);
+});

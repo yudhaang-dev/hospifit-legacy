@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read int|null $children_count
+ * @property-read int|null $assets_count
  */
 #[Fillable([
     'site_id',
@@ -65,6 +66,14 @@ class Location extends Model
     public function children(): HasMany
     {
         return $this->hasMany(Location::class, 'parent_location_id');
+    }
+
+    /**
+     * @return HasMany<Asset, $this>
+     */
+    public function assets(): HasMany
+    {
+        return $this->hasMany(Asset::class);
     }
 
     /**

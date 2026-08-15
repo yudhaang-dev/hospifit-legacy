@@ -8,11 +8,10 @@ use Illuminate\Support\Facades\DB;
 class DeleteLocations
 {
     /**
-     * Delete every given Location that has no child Locations. Locations
-     * that still have children are left untouched and counted as "blocked"
-     * — this is what stops a delete from silently cascading away a whole
-     * sub-tree. (Assets aren't built yet — once they are, this is where an
-     * Asset-dependent check lands too.)
+     * Delete every given Location that has no child Locations and no
+     * Assets. Locations that still have either are left untouched and
+     * counted as "blocked" — this is what stops a delete from silently
+     * cascading away a whole sub-tree or orphaning registered equipment.
      *
      * @param  array<int, int>  $locationIds
      * @return array{deleted: int, blocked: int}
@@ -24,12 +23,12 @@ class DeleteLocations
             $blocked = 0;
 
             $locations = Location::query()
-                ->withCount('children')
+                ->withCount(['children', 'assets'])
                 ->whereKey($locationIds)
                 ->get();
 
             foreach ($locations as $location) {
-                if ($location->children_count > 0) {
+                if ($location->children_count > 0 || $location->assets_count > 0) {
                     $blocked++;
 
                     continue;

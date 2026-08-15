@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
+use App\Domain\Asset\Policies\AssetPolicy;
+use App\Domain\Asset\Policies\AssetTypePolicy;
 use App\Domain\Client\Policies\ClientPolicy;
 use App\Domain\Client\Policies\LocationPolicy;
 use App\Domain\Client\Policies\SitePolicy;
 use App\Domain\Identity\Http\Responses\PasskeyLoginResponse;
+use App\Models\Asset;
+use App\Models\AssetType;
 use App\Models\Client;
 use App\Models\Location;
 use App\Models\Site;
@@ -71,6 +75,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Client::class, ClientPolicy::class);
         Gate::policy(Site::class, SitePolicy::class);
         Gate::policy(Location::class, LocationPolicy::class);
+        Gate::policy(Asset::class, AssetPolicy::class);
+        Gate::policy(AssetType::class, AssetTypePolicy::class);
     }
 
     /**

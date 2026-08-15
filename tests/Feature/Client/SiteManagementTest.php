@@ -203,6 +203,22 @@ test('deleting a site with a location is blocked', function () {
     expect(Site::find($site->id))->not->toBeNull();
 });
 
+test('site typeahead search is scoped to the given client', function () {
+    $admin = User::factory()->admin()->create();
+    $client = Client::factory()->create();
+    Site::factory()->for($client)->create(['name' => 'Gedung Utama']);
+    $otherClientSite = Site::factory()->create(['name' => 'Gedung Utama']);
+
+    $response = $this->actingAs($admin)->getJson(route('backoffice.sites.search', [
+        'client_id' => $client->id,
+        'q' => 'Utama',
+    ]));
+
+    $response->assertOk();
+    $response->assertJsonCount(1);
+    $response->assertJsonMissing(['id' => $otherClientSite->id]);
+});
+
 test('admin can view a site with its location tree', function () {
     $admin = User::factory()->admin()->create();
     $site = Site::factory()->create();

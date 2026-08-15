@@ -10,10 +10,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\BulkDeleteClientsRequest;
 use App\Http\Requests\Client\BulkUpdateClientStatusRequest;
 use App\Http\Requests\Client\IndexClientRequest;
+use App\Http\Requests\Client\SearchClientRequest;
 use App\Http\Requests\Client\ShowClientRequest;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Models\Client;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -85,6 +87,34 @@ class ClientController extends Controller
                 'per_page' => (int) $perPage,
             ],
         ]);
+    }
+
+    /**
+     * Typeahead search for Clients, e.g. for the global Asset list's
+     * cascading Client/Site/Location picker. JSON, not Inertia — capped at
+     * 20 results, same reasoning a full page of results wouldn't help a
+     * picker.
+     */
+    public function search(SearchClientRequest $request): JsonResponse
+    {
+        /** @var int|null $id */
+        $id = $request->validated('id');
+        /** @var string|null $q */
+        $q = $request->validated('q');
+
+        // Resolving a single, already-known id (e.g. re-hydrating a picker's
+        // selected label from a URL filter) short-circuits the name search —
+        // the record might otherwise fall outside the first 20 name-sorted
+        // results.
+        $clients = $id !== null
+            ? Client::query()->whereKey($id)->get(['id', 'name'])
+            : Client::query()
+                ->when($q, fn ($query, $q) => $query->where('name', 'like', "%{$q}%"))
+                ->orderBy('name')
+                ->limit(20)
+                ->get(['id', 'name']);
+
+        return response()->json($clients);
     }
 
     /**
