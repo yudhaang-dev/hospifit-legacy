@@ -6,7 +6,7 @@ use App\Http\Controllers\Backoffice\LocationController;
 use App\Http\Controllers\Backoffice\SiteController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'role:admin,office_staff'])
+Route::middleware(['auth', 'verified', 'role:admin,office_staff'])
     ->prefix('backoffice')
     ->name('backoffice.')
     ->group(function () {

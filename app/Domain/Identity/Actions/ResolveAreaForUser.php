@@ -3,6 +3,7 @@
 namespace App\Domain\Identity\Actions;
 
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 
 class ResolveAreaForUser
 {
@@ -16,5 +17,13 @@ class ResolveAreaForUser
             'field' => 'field.today',
             default => 'portal.dashboard',
         });
+    }
+
+    /**
+     * Redirect straight to this user's layout-area landing page.
+     */
+    public function redirect(User $user): RedirectResponse
+    {
+        return redirect()->to($this->handle($user));
     }
 }

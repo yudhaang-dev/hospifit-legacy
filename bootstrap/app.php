@@ -24,6 +24,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
         ]);
+
+        // Compares the session's stored password hash against the user's current one on
+        // every request, logging out any session left over from a since-changed password —
+        // this is what actually invalidates a user's other active sessions after a password
+        // reset (see App\Domain\Identity\Actions\ResetPassword); rotating remember_token
+        // alone only affects future "remember me" cookie logins, not sessions already live.
+        $middleware->authenticateSessions();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

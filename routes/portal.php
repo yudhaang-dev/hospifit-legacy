@@ -4,7 +4,7 @@ use App\Http\Controllers\Portal\ClientController;
 use App\Http\Controllers\Portal\DashboardController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'role:client_admin,client_staff'])
+Route::middleware(['auth', 'verified', 'role:client_admin,client_staff'])
     ->prefix('portal')
     ->name('portal.')
     ->group(function () {
